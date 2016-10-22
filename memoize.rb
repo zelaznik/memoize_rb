@@ -1,17 +1,14 @@
 module Memoize
-  def memoize(&block)
-
+  def memoize
     yield
-
     cls0 = Class.new
-    cls = Class.new &block
+    cls  = Class.new &proc
 
     class_names = cls.public_methods(false) - cls0.public_methods(false)
     instance_names = cls.instance_methods(false)
 
     instance_names.each do |name|
       orig = instance_method(name)
-
       cache = Hash.new do |h,k|
         scope, *args = k
         h[k] = orig.bind(scope).call(*args)
@@ -38,9 +35,11 @@ class Foo
 
   memoize do
     def fib(n)
+      puts "fib(#{n})"
       (n < 2) ? n : fib(n-1) + fib(n-2)
     end
     def fact(n)
+      puts "fact(#{n})"
       (n < 1) ? 1 : n * fact(n-1)
     end
     def self.cls_name
